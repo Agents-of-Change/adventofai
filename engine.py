@@ -1,15 +1,21 @@
-import openai
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from ice.recipe import recipe
+from ice.agents.openai import OpenAIAgent
 
-openai.api_key = os.environ['OPENAI_API_KEY']
 
-response = openai.Completion.create(
-  model="text-davinci-003",
-  prompt="Say this is a test",
-  max_tokens=7,
-  temperature=0
-)
+def make_qa_prompt(question: str) -> str:
+    return f"""Answer the following question:
 
-print(response.choices[0].text)
+Question: "{question}"
+Answer: "
+""".strip()
+
+
+async def answer(question: str = "Write hello world in python"):
+    prompt = make_qa_prompt(question)
+
+    answer = await OpenAIAgent(model='code-davinci-002').complete(prompt=prompt, stop='"')
+    return answer
+
+
+if __name__ == '__main__':
+    recipe.main(answer)

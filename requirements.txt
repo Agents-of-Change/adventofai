@@ -3,3 +3,4 @@ python-dotenv
 httpx
 typer
 beautifulsoup4
+ought-ice
