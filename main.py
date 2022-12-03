@@ -3,6 +3,7 @@ import typer
 from dataclasses import dataclass
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv; load_dotenv()
+from html2text import html2text
 import os
 
 app = typer.Typer()
@@ -24,9 +25,10 @@ class Problem:
 
 def get_description(html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
-    article = soup.find('article', class_='day-desc')
-    assert article is not None, 'could not find article.day-desc'
-    return article.text
+    articles = soup.find_all('article', class_='day-desc')
+    assert len(articles) > 0, 'could not find article.day-desc'
+    desc_html = '\n\n'.join(str('\n'.join(str(c) for c in a)) for a in articles)
+    return html2text(desc_html)
 
 
 def fetch_problem(day: int, year: int) -> Problem:
@@ -41,6 +43,17 @@ def fetch_problem(day: int, year: int) -> Problem:
     # TODO: Clean up formatting a bit
     return Problem(day=day, year=year, input=input_resp.text, html=resp.text)
 
+
+def load_problem(day: int, year: int) -> Problem:
+    try:
+        with open(f'{year}/{day}/index.html') as f: html = f.read()
+        with open(f'{year}/{day}/input.txt') as f: input_ = f.read()
+
+        return Problem(day=day, year=year, input=input_, html=html)
+    except FileNotFoundError as e:
+        return fetch_problem(day, year)
+
+
 def chdir_workdir():
     # cd to work directory
     work_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aoc')
@@ -50,7 +63,26 @@ def chdir_workdir():
 
 @app.command()
 def solve(day: int, year: int = LATEST_AOC):
-    raise NotImplemented
+    problem = load_problem(day, year)
+    print(problem.description)
+    return
+
+    # Not finished yet! specifically llm_solve still uses ought ice, which is a pain to integrate.
+
+    solution_code = llm_solve(problem.description)
+    print(solution_code)
+    with open(f'{year}/{day}/aisolve.py', 'w') as f:
+        f.write(solution_code)
+    print('-' * 60)
+    print(solution_code)
+    print('-' * 60)
+    yn = input('Run this code? [y/n] ')
+    if yn == 'y':
+        print('Running...')
+        exec(solution_code.replace('def solve', 'def solve_aoc'))
+        solve_aoc(problem.input)
+        print('Done!')
+    
 
 
 @app.command()

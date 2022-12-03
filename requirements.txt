@@ -4,3 +4,5 @@ httpx
 typer
 beautifulsoup4
 ought-ice
+html2text
+
