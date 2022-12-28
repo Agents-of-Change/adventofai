@@ -2,6 +2,19 @@
 
 Advent of Code AI. Like [AlphaCode](https://www.deepmind.com/blog/competitive-programming-with-alphacode) but significantly worse.
 
+### Installation
+
+1. Install Python3 [https://www.python.org/downloads/](Python3)
+2. Install Interactive Composition Explorer (ICE)
+      ```sh
+   pip install ought-ice
+   ```
+3. Obtain an OPENAI_API_KEY and create an .env file containing it in the ICE folder
+4. Start the ICE server in its own terminal
+   ```sh
+   python -m ice.server
+   ```
+
 ### TODO
 
 - [ ] Setup benchmarking pipeline with all past adventofcode problems
